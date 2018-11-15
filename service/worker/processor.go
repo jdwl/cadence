@@ -73,7 +73,7 @@ const (
 
 	replicationTaskInitialRetryInterval = 10 * time.Millisecond
 	replicationTaskMaxRetryInterval     = 20 * time.Millisecond
-	replicationTaskExpirationInterval   = 30 * time.Millisecond
+	replicationTaskExpirationInterval   = 1 * time.Second
 )
 
 var (
@@ -495,6 +495,7 @@ func createReplicatorRetryPolicy() backoff.RetryPolicy {
 	policy := backoff.NewExponentialRetryPolicy(replicationTaskInitialRetryInterval)
 	policy.SetMaximumInterval(replicationTaskMaxRetryInterval)
 	policy.SetExpirationInterval(replicationTaskExpirationInterval)
+	policy.SetMaximumAttempts(2)
 
 	return policy
 }
