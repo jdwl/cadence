@@ -71,9 +71,9 @@ const (
 
 	retryErrorWaitMillis = 100
 
-	replicationTaskInitialRetryInterval = 100 * time.Millisecond
-	replicationTaskMaxRetryInterval     = 2 * time.Second
-	replicationTaskExpirationInterval   = 1 * time.Second
+	replicationTaskInitialRetryInterval = 10 * time.Millisecond
+	replicationTaskMaxRetryInterval     = 20 * time.Millisecond
+	replicationTaskExpirationInterval   = 30 * time.Millisecond
 )
 
 var (
