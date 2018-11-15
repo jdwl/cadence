@@ -367,7 +367,10 @@ func (s *shardContextImpl) CreateWorkflowExecution(request *persistence.CreateWo
 
 	defer s.updateMaxReadLevelLocked(transferMaxReadLevel)
 
-	s.allocateTimerIDsLocked(request.TimerTasks)
+	err := s.allocateTimerIDsLocked(request.TimerTasks)
+	if err != nil {
+		return nil, err
+	}
 
 Create_Loop:
 	for attempt := 0; attempt < conditionalRetryCount; attempt++ {
@@ -481,7 +484,10 @@ func (s *shardContextImpl) UpdateWorkflowExecution(request *persistence.UpdateWo
 	}
 	defer s.updateMaxReadLevelLocked(transferMaxReadLevel)
 
-	s.allocateTimerIDsLocked(request.TimerTasks)
+	err = s.allocateTimerIDsLocked(request.TimerTasks)
+	if err != nil {
+		return nil, err
+	}
 
 Update_Loop:
 	for attempt := 0; attempt < conditionalRetryCount; attempt++ {
