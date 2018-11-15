@@ -73,7 +73,7 @@ const (
 
 	replicationTaskInitialRetryInterval = 100 * time.Millisecond
 	replicationTaskMaxRetryInterval     = 2 * time.Second
-	replicationTaskExpirationInterval   = 10 * time.Second
+	replicationTaskExpirationInterval   = 1 * time.Second
 )
 
 var (
