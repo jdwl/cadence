@@ -199,7 +199,7 @@ func (p *replicationTaskProcessor) processWithRetry(msg messaging.Message, worke
 		logging.TagAttemptStart: time.Now(),
 	})
 
-	forceBuffer := false
+	forceBuffer := true
 	remainingRetryCount := p.config.ReplicationTaskMaxRetry()
 
 	attempt := 0
@@ -222,7 +222,7 @@ ProcessRetryLoop:
 		default:
 			// isTransientRetryableError is pretty broad on purpose as we want to retry replication tasks few times before
 			// moving them to DLQ.
-			err = backoff.Retry(op, replicationTaskRetryPolicy, p.isTransientRetryableError)
+			err = op()
 			if err != nil && p.isTransientRetryableError(err) {
 				// Any whitelisted transient errors should be retried indefinitely
 				if common.IsWhitelistServiceTransientError(err) {
