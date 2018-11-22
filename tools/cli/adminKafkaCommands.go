@@ -330,7 +330,7 @@ func AdminRereplicate(c *cli.Context) {
 			ErrorAndExit("", fmt.Errorf("cannot find high watermark"))
 		}
 		fmt.Printf("Topic high watermark %v.\n", highWaterMarks)
-		for partition, _ := range highWaterMarks {
+		for partition := range highWaterMarks {
 			consumer.MarkPartitionOffset(fromTopic, partition, startOffset, "")
 			fmt.Printf("reset offset %v:%v \n", partition, startOffset)
 		}
