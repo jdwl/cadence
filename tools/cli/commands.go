@@ -40,6 +40,7 @@ import (
 	"github.com/uber/cadence/common"
 	"github.com/urfave/cli"
 
+	"github.com/uber/cadence/common/codec"
 	"go.uber.org/cadence/.gen/go/cadence/workflowserviceclient"
 	s "go.uber.org/cadence/.gen/go/shared"
 	"go.uber.org/cadence/client"
@@ -529,6 +530,13 @@ func showHistoryHelper(c *cli.Context, wid, rid string) {
 			ExitIfError(err)
 		}
 	}
+
+	enc := codec.NewThriftRWEncoder()
+	bin, err := enc.Encode(history)
+	if err != nil {
+		ErrorAndExit("enc.Encode(history)", err)
+	}
+	fmt.Printf("historySize: %v \n", len(bin))
 }
 
 // StartWorkflow starts a new workflow execution
