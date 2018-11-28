@@ -605,6 +605,10 @@ func (s *shardContextImpl) AppendHistoryV2Events(request *persistence.AppendHist
 	size := 0
 	defer func() {
 		s.metricsClient.RecordTimer(metrics.SessionSizeStatsScope, metrics.HistorySize, time.Duration(size))
+		s.logger.WithFields(bark.Fields{
+			logging.TagDomainID: domainID,
+			"size":              size,
+		}).Info("debug historySize AppendHistoryEvents")
 	}()
 	resp, err0 := s.historyV2Mgr.AppendHistoryNodes(request)
 	if resp != nil {
@@ -623,6 +627,13 @@ func (s *shardContextImpl) AppendHistoryEvents(request *persistence.AppendHistor
 	size := 0
 	defer func() {
 		s.metricsClient.RecordTimer(metrics.SessionSizeStatsScope, metrics.HistorySize, time.Duration(size))
+
+		s.logger.WithFields(bark.Fields{
+			logging.TagDomainID:            request.DomainID,
+			logging.TagWorkflowExecutionID: request.Execution.GetWorkflowId(),
+			logging.TagWorkflowRunID:       request.Execution.GetRunId(),
+			"size":                         size,
+		}).Info("debug historySize AppendHistoryEvents")
 	}()
 
 	// No need to lock context here, as we can write concurrently to append history events
