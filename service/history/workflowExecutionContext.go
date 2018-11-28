@@ -118,6 +118,12 @@ func (c *workflowExecutionContext) loadWorkflowExecutionInternal() error {
 	}
 
 	c.msBuilder = msBuilder
+	c.logger.WithFields(bark.Fields{
+		logging.TagDomainID:            c.domainID,
+		logging.TagWorkflowExecutionID: c.msBuilder.GetExecutionInfo().WorkflowID,
+		logging.TagWorkflowRunID:       c.msBuilder.GetExecutionInfo().RunID,
+		"size":                         c.msBuilder.GetHistorySize(),
+	}).Info("debug historySize")
 	// finally emit execution and session stats
 	c.emitWorkflowExecutionStats(response.MutableStateStats, c.msBuilder.GetHistorySize())
 	return nil
