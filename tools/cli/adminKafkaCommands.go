@@ -513,26 +513,30 @@ func newKafkaProducer(c *cli.Context) messaging.Producer {
 
 func AdminPurgeTopic(c *cli.Context) {
 	hostFile := getRequiredOption(c, FlagHostFile)
-	fromTopic := getRequiredOption(c, FlagTopic)
-	fromCluster := getRequiredOption(c, FlagCluster)
+	topic := getRequiredOption(c, FlagTopic)
+	cluster := getRequiredOption(c, FlagCluster)
 	group := getRequiredOption(c, FlagGroup)
-	fromBrokers, err := loadBrokers(hostFile, fromCluster)
+	brokers, err := loadBrokers(hostFile, cluster)
 
-	consumer := createConsumerAndWaitForReady(fromBrokers, group, fromTopic)
+	consumer := createConsumerAndWaitForReady(brokers, group, topic)
 
-	highWaterMarks, ok := consumer.HighWaterMarks()[fromTopic]
+	highWaterMarks, ok := consumer.HighWaterMarks()[topic]
 	if !ok {
 		ErrorAndExit("", fmt.Errorf("cannot find high watermark"))
 	}
 	fmt.Printf("Topic high watermark %v.\n", highWaterMarks)
 	for partition, hi := range highWaterMarks {
-		consumer.MarkPartitionOffset(fromTopic, partition, hi, "")
+		consumer.MarkPartitionOffset(topic, partition, hi-1, "")
 		fmt.Printf("set partition offset %v:%v \n", partition, hi)
 	}
 	err = consumer.CommitOffsets()
 	if err != nil {
 		ErrorAndExit("fail to commit offset", err)
 	}
+
+	consumer = createConsumerAndWaitForReady(brokers, group, topic)
+	msg, ok := <-consumer.Messages()
+	fmt.Printf("current offset sample: %v: %v \n", msg.Partition, msg.Offset)
 }
 
 // AdminMergeDLQ publish replication tasks from DLQ or JSON file
