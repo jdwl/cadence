@@ -511,6 +511,30 @@ func newKafkaProducer(c *cli.Context) messaging.Producer {
 	return producer
 }
 
+func AdminPurgeTopic(c *cli.Context) {
+	hostFile := getRequiredOption(c, FlagHostFile)
+	fromTopic := getRequiredOption(c, FlagTopic)
+	fromCluster := getRequiredOption(c, FlagCluster)
+	group := getRequiredOption(c, FlagGroup)
+	fromBrokers, err := loadBrokers(hostFile, fromCluster)
+
+	consumer := createConsumerAndWaitForReady(fromBrokers, group, fromTopic)
+
+	highWaterMarks, ok := consumer.HighWaterMarks()[fromTopic]
+	if !ok {
+		ErrorAndExit("", fmt.Errorf("cannot find high watermark"))
+	}
+	fmt.Printf("Topic high watermark %v.\n", highWaterMarks)
+	for partition, hi := range highWaterMarks {
+		consumer.MarkPartitionOffset(fromTopic, partition, hi, "")
+		fmt.Printf("set partition offset %v:%v \n", partition, hi)
+	}
+	err = consumer.CommitOffsets()
+	if err != nil {
+		ErrorAndExit("fail to commit offset", err)
+	}
+}
+
 // AdminMergeDLQ publish replication tasks from DLQ or JSON file
 func AdminMergeDLQ(c *cli.Context) {
 	hostFile := getRequiredOption(c, FlagHostFile)
